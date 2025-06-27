@@ -1,19 +1,97 @@
 "use client";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
+import DemoButton from "./DemoButton";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaChartPie, FaExclamationTriangle, FaMoneyBillWave, FaUserTie, FaUsers, FaPlusCircle, FaFileInvoiceDollar, FaFileAlt, FaCog, FaQuestionCircle } from "react-icons/fa";
-import DemoButton from "./DemoButton";
-import Reportes from "./Reportes";
+
+// Componentes gráficos para dashboard
+function CostosPorFase({ costos, presupuestos }: { costos: any[]; presupuestos: any[] }) {
+  const fases = Array.from(new Set([
+    ...costos.map((c) => c.faseSprint || "Sin Fase"),
+    ...presupuestos.map((p) => p.nombre),
+  ]));
+
+  const data = fases.map((fase) => {
+    const gastos = costos.filter((c) => (c.faseSprint || "Sin Fase") === fase)
+      .reduce((acc, c) => acc + Number(c.monto), 0);
+    const planificado = presupuestos.filter((p) => p.nombre === fase)
+      .reduce((acc, p) => acc + Number(p.montoTotal), 0);
+    return {
+      name: fase,
+      GastoReal: gastos,
+      GastoPlanificado: planificado,
+    };
+  });
+
+  return (
+    <div className="w-full h-[300px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="GastoReal" fill="#2563eb" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="GastoPlanificado" fill="#60a5fa" radius={[8, 8, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function CostosPorSprint({ costos, presupuestos }: { costos: any[]; presupuestos: any[] }) {
+  const sprints = Array.from(new Set(costos.map((c) => c.faseSprint || "Sin Sprint")));
+
+  const data = sprints.map((sprint) => {
+    const gastos = costos.filter((c) => (c.faseSprint || "Sin Sprint") === sprint)
+      .reduce((acc, c) => acc + Number(c.monto), 0);
+    const planificado = presupuestos.filter((p) => p.nombre === sprint)
+      .reduce((acc, p) => acc + Number(p.montoTotal), 0);
+    return {
+      name: sprint,
+      GastoReal: gastos,
+      GastoPlanificado: planificado,
+    };
+  });
+
+  return (
+    <div className="w-full h-[300px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="GastoReal" stroke="#2563eb" strokeWidth={3} />
+          <Line type="monotone" dataKey="GastoPlanificado" stroke="#60a5fa" strokeWidth={3} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [costos, setCostos] = useState<any[]>([]);
+  const [presupuestos, setPresupuestos] = useState<any[]>([]);
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session) router.push("/login");
-  }, [session, status, router]);
+    if (!session) return;
+    fetch(`/api/costos?email=${session.user.email}`)
+      .then(res => res.json())
+      .then(data => setCostos(data))
+      .catch(() => setCostos([]));
+    fetch(`/api/presupuestos?email=${session.user.email}`)
+      .then(res => res.json())
+      .then(data => setPresupuestos(data))
+      .catch(() => setPresupuestos([]));
+  }, [session, status]);
 
   if (status === "loading" || !session) {
     return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
@@ -150,12 +228,12 @@ export default function DashboardPage() {
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center min-h-[300px]">
               <h2 className="text-lg font-bold text-blue-700 mb-2">Costos por Fase del Proyecto</h2>
-              <Reportes />
+              <CostosPorFase costos={costos} presupuestos={presupuestos} />
               <p className="text-xs text-gray-500 mt-2 text-center">Visualiza en qué fases del ciclo de vida se concentran los gastos.</p>
             </div>
             <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center min-h-[300px]">
               <h2 className="text-lg font-bold text-blue-700 mb-2">Costos por Sprint</h2>
-              <Reportes />
+              <CostosPorSprint costos={costos} presupuestos={presupuestos} />
               <p className="text-xs text-gray-500 mt-2 text-center">Monitorea el presupuesto y gasto real en cada sprint.</p>
             </div>
           </section>
@@ -184,7 +262,7 @@ export default function DashboardPage() {
           </section>
           <footer className="mt-12 text-xs text-gray-400 text-center w-full border-t pt-3 pb-4 px-8 bg-white/80 rounded-b-2xl">
             <span className="block font-semibold text-gray-500 mb-1">Soporte: soporte@konsultech.com</span>
-            <span className="block">&copy; {new Date().getFullYear()} Konsultech. Todos los derechos reservados.</span>
+            <span className="block">© {new Date().getFullYear()} Konsultech. Todos los derechos reservados.</span>
           </footer>
         </div>
       </main>
