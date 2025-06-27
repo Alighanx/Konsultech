@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FaUser, FaLock } from "react-icons/fa";
+import DemoButton from "../DemoButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -55,6 +56,8 @@ export default function LoginPage() {
             Control presupuestario y trazabilidad de costos para proyectos TI
           </p>
         </div>
+        {/* Botón demo */}
+        <DemoButton />
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5 px-8 py-8">
           <div className="relative">
@@ -69,7 +72,7 @@ export default function LoginPage() {
               placeholder="Correo electrónico"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition text-gray-800 placeholder-gray-400 bg-white shadow-sm"
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition text-gray-900 placeholder-gray-400 bg-white shadow-sm"
               required
             />
           </div>
@@ -85,7 +88,7 @@ export default function LoginPage() {
               placeholder="Contraseña"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition text-gray-800 placeholder-gray-400 bg-white shadow-sm"
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition text-gray-900 placeholder-gray-400 bg-white shadow-sm"
               required
             />
           </div>

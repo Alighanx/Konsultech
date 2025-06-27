@@ -13,8 +13,37 @@ model user {
   email    String @unique
   password String
   role     String
+  costos         costos[]
+  presupuestos   presupuestos[]
+  reportes       reportes[]
 }
 
 model costos {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  descripcion String
+  monto       Float
+  fecha       DateTime
+  categoria   String
+  faseSprint  String?
+  userId      String
+  user        user     @relation(fields: [userId], references: [id])
+}
+
+model presupuestos {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  nombre      String
+  montoTotal  Float
+  fechaInicio DateTime
+  fechaFin    DateTime
+  userId      String
+  user        user     @relation(fields: [userId], references: [id])
+}
+
+model reportes {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  titulo    String
+  contenido String
+  fecha     DateTime
+  userId    String
+  user      user     @relation(fields: [userId], references: [id])
 }
