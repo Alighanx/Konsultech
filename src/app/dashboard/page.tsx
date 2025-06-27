@@ -4,10 +4,23 @@ import DemoButton from "./DemoButton";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaChartPie, FaExclamationTriangle, FaMoneyBillWave, FaUserTie, FaUsers, FaPlusCircle, FaFileInvoiceDollar, FaFileAlt, FaCog, FaQuestionCircle } from "react-icons/fa";
+import { FaChartPie, FaExclamationTriangle, FaMoneyBillWave, FaUsers, FaPlusCircle, FaFileInvoiceDollar, FaFileAlt, FaCog, FaQuestionCircle } from "react-icons/fa";
+
+// Definir tipos mínimos para los props y estados
+interface Costo {
+  proyecto?: string;
+  faseSprint?: string;
+  monto: number | string;
+  fecha: string;
+}
+interface Presupuesto {
+  nombre: string;
+  montoTotal: number | string;
+  fechaInicio: string;
+}
 
 // Componentes gráficos para dashboard
-function CostosPorFase({ costos, presupuestos }: { costos: any[]; presupuestos: any[] }) {
+function CostosPorFase({ costos, presupuestos }: { costos: Costo[]; presupuestos: Presupuesto[] }) {
   const fases = Array.from(new Set([
     ...costos.map((c) => c.faseSprint || "Sin Fase"),
     ...presupuestos.map((p) => p.nombre),
@@ -42,7 +55,7 @@ function CostosPorFase({ costos, presupuestos }: { costos: any[]; presupuestos: 
   );
 }
 
-function CostosPorSprint({ costos, presupuestos }: { costos: any[]; presupuestos: any[] }) {
+function CostosPorSprint({ costos, presupuestos }: { costos: Costo[]; presupuestos: Presupuesto[] }) {
   const sprints = Array.from(new Set(costos.map((c) => c.faseSprint || "Sin Sprint")));
 
   const data = sprints.map((sprint) => {
@@ -77,8 +90,8 @@ function CostosPorSprint({ costos, presupuestos }: { costos: any[]; presupuestos
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [costos, setCostos] = useState<any[]>([]);
-  const [presupuestos, setPresupuestos] = useState<any[]>([]);
+  const [costos, setCostos] = useState<Costo[]>([]);
+  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -97,7 +110,7 @@ export default function DashboardPage() {
     return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
   }
 
-  const user = session.user as any;
+  const user = session.user as { role?: string; name?: string };
   const isAdmin = user.role === "ADMIN";
 
   // Saludo según la hora

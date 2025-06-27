@@ -1,11 +1,21 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { FaPlusCircle, FaMoneyBillWave, FaCalendarAlt, FaListUl, FaEdit, FaTrash, FaSave, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaPlusCircle, FaListUl, FaEdit, FaTrash, FaSave, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+
+// Definir un tipo mínimo para Costo
+interface Costo {
+  descripcion: string;
+  monto: number;
+  fecha: string;
+  categoria: string;
+  faseSprint: string;
+  [key: string]: unknown;
+}
 
 export default function CostosPage() {
   const { data: session } = useSession();
-  const [costos, setCostos] = useState<any[]>([]);
+  const [costos, setCostos] = useState<Costo[]>([]);
   const [form, setForm] = useState({
     descripcion: "",
     monto: "",
@@ -16,7 +26,7 @@ export default function CostosPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<any>({});
+  const [editForm, setEditForm] = useState<Partial<Costo>>({});
   const [page, setPage] = useState(0);
   const pageSize = 5;
 
@@ -37,6 +47,11 @@ export default function CostosPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    if (!session?.user?.email) {
+      setError("No hay sesión activa");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch("/api/costos", {
         method: "POST",
@@ -50,25 +65,21 @@ export default function CostosPage() {
         setCostos([data, ...costos]);
         setForm({ descripcion: "", monto: "", fecha: "", categoria: "", faseSprint: "" });
       }
-    } catch {
+    } catch (err) {
       setError("Error al guardar costo");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (i: number) => {
-    setEditIndex(i);
-    setEditForm(costos[i]);
-  };
-
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
-  };
-
-  const handleSave = async (i: number) => {
+  const handleEdit = async (i: number) => {
     setLoading(true);
     setError("");
+    if (!session?.user?.email) {
+      setError("No hay sesión activa");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch("/api/costos", {
         method: "PUT",
@@ -83,7 +94,7 @@ export default function CostosPage() {
         setCostos(newCostos);
         setEditIndex(null);
       }
-    } catch {
+    } catch (err) {
       setError("Error al guardar cambios");
     } finally {
       setLoading(false);
@@ -93,16 +104,32 @@ export default function CostosPage() {
   const handleDelete = async (i: number) => {
     setLoading(true);
     setError("");
+    if (!session?.user?.email) {
+      setError("No hay sesión activa");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/costos?id=${costos[i].id}&email=${session.user.email}`, { method: "DELETE" });
       const data = await res.json();
       if (data.error) setError(data.error);
       else setCostos(costos.filter((_, idx) => idx !== i));
-    } catch {
+    } catch (err) {
       setError("Error al eliminar");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Manejar cambios en el formulario de edición
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  // Guardar edición
+  const handleSave = async (i: number) => {
+    await handleEdit(i);
+    setEditIndex(null);
   };
 
   return (

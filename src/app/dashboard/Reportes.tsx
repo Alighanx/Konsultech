@@ -2,24 +2,31 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, AreaChart, Area
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, AreaChart, Area
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 
+// Tipos estrictos para los datos
+interface Costo {
+  proyecto?: string;
+  faseSprint?: string;
+  monto: number | string;
+  fecha: string;
+}
+interface Presupuesto {
+  nombre: string;
+  montoTotal: number | string;
+  fechaInicio: string;
+}
+
 export default function Reportes() {
   const { data: session } = useSession();
-  const [reportes, setReportes] = useState([]);
-  const [costos, setCostos] = useState<any[]>([]);
-  const [presupuestos, setPresupuestos] = useState<any[]>([]);
+  const [costos, setCostos] = useState<Costo[]>([]);
+  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
 
   useEffect(() => {
     if (session?.user?.email) {
-      fetch(`/api/reportes?email=${session.user.email}`)
-        .then(res => res.json())
-        .then(data => setReportes(data))
-        .catch(() => setReportes([]));
       fetch(`/api/costos?email=${session.user.email}`)
         .then(res => res.json())
         .then(data => setCostos(Array.isArray(data) ? data : []))
@@ -101,7 +108,7 @@ export default function Reportes() {
       <h2 className="text-2xl font-bold text-blue-800 mb-6">Reportes Analíticos</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {hayDatosGraficos ? (
-          <BarChart data={dataBar} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} className="bg-white rounded-xl shadow p-4">
+          <BarChart data={dataBar} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} width={400} height={300} className="bg-white rounded-xl shadow p-4">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
@@ -114,7 +121,7 @@ export default function Reportes() {
           <Alert title="No hay datos suficientes para mostrar el gráfico." description="Registra costos y presupuestos para visualizar el análisis." />
         )}
         {hayDatosGraficos ? (
-          <LineChart data={dataLine} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} className="bg-white rounded-xl shadow p-4">
+          <LineChart data={dataLine} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} width={400} height={300} className="bg-white rounded-xl shadow p-4">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
@@ -129,7 +136,7 @@ export default function Reportes() {
       </div>
       <div className="mt-6">
         {hayDatosGraficos ? (
-          <AreaChart data={dataArea} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} className="bg-white rounded-xl shadow p-4">
+          <AreaChart data={dataArea} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} width={800} height={300} className="bg-white rounded-xl shadow p-4">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="mes" />
             <YAxis />

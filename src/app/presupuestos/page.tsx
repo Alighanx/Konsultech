@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { FaFileInvoiceDollar, FaListOl, FaClipboardList } from "react-icons/fa";
+import { FaFileInvoiceDollar, FaClipboardList } from "react-icons/fa";
+
+// Definir tipo mínimo para presupuesto
+interface Presupuesto {
+  nombre: string;
+  montoTotal: number | string;
+  fechaInicio: string;
+  fechaFin?: string;
+  tipo?: string;
+  [key: string]: unknown;
+}
 
 export default function PresupuestosPage() {
   const { data: session } = useSession();
@@ -11,7 +21,7 @@ export default function PresupuestosPage() {
   const [monto, setMonto] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
-  const [presupuestos, setPresupuestos] = useState<any[]>([]);
+  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +41,10 @@ export default function PresupuestosPage() {
       setError("Completa todos los campos.");
       return;
     }
+    if (!session?.user?.email) {
+      setError("No hay sesión activa");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/presupuestos", {
@@ -38,8 +52,9 @@ export default function PresupuestosPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: session.user.email,
+          tipo,
           nombre,
-          montoTotal: monto,
+          monto,
           fechaInicio,
           fechaFin,
         }),
@@ -65,8 +80,38 @@ export default function PresupuestosPage() {
         setFechaInicio("");
         setFechaFin("");
       }
-    } catch {
+    } catch (err) {
       setError("Error al guardar presupuesto");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async (i: number) => {
+    setError("");
+    if (!session?.user?.email) {
+      setError("No hay sesión activa");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/presupuestos", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...presupuestos[i],
+          email: session.user.email,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) setError(data.error);
+      else {
+        const newPresupuestos = [...presupuestos];
+        newPresupuestos[i] = data;
+        setPresupuestos(newPresupuestos);
+      }
+    } catch (err) {
+      setError("Error al actualizar presupuesto");
     } finally {
       setLoading(false);
     }
@@ -124,7 +169,7 @@ export default function PresupuestosPage() {
                 <tr><td colSpan={4} className="text-center text-gray-400 py-4">No hay presupuestos registrados aún.</td></tr>
               ) : (
                 presupuestos.map((p, i) => (
-                  <tr key={p.id || i} className="even:bg-blue-50 hover:bg-blue-100 transition border-b last:border-b-0">
+                  <tr key={p.id ? String(p.id) : i} className="even:bg-blue-50 hover:bg-blue-100 transition border-b last:border-b-0">
                     <td className="px-4 py-2 border border-blue-100 text-blue-900 font-medium">{p.nombre}</td>
                     <td className="px-4 py-2 border border-blue-100 text-blue-800">${p.montoTotal}</td>
                     <td className="px-4 py-2 border border-blue-100 text-blue-700">{p.fechaInicio ? new Date(p.fechaInicio).toLocaleDateString() : ""}</td>
