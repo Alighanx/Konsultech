@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
+import ABCActividades from "./ABCActividades";
 
 // Tipos estrictos para los datos
 interface Costo {
@@ -174,6 +175,9 @@ export default function Reportes() {
             }
           </tbody>
         </table>
+      </div>
+      <div className="mt-10">
+        <ABCActividades />
       </div>
     </Card>
   );
