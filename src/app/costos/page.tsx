@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { FaPlusCircle, FaListUl, FaEdit, FaTrash, FaSave, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
-// Definir un tipo mínimo para Costo
+// Cambiar any[] y any por tipos estrictos
 interface Costo {
   descripcion: string;
   monto: number;
