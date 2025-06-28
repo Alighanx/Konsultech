@@ -7,6 +7,8 @@ import {
 import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import ABCActividades from "./ABCActividades";
+import PresupuestoABC from "./PresupuestoABC";
+import ComparativoABC from "./ComparativoABC";
 
 // Tipos estrictos para los datos
 interface Costo {
@@ -178,6 +180,8 @@ export default function Reportes() {
       </div>
       <div className="mt-10">
         <ABCActividades />
+        <PresupuestoABC />
+        <ComparativoABC />
       </div>
     </Card>
   );

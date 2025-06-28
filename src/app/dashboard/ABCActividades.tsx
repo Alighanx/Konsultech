@@ -2,6 +2,17 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface ActividadABC {
   id: string;
@@ -111,9 +122,81 @@ export default function ABCActividades() {
   // Drivers únicos para filtro
   const drivers = Array.from(new Set(actividades.map(a => a.driver)));
 
+  // Calcular totales generales
+  const totalABC = actividades.reduce((acc, a) => acc + a.costo * a.cantidad, 0);
+  const totalPresupuesto = presupuestos.reduce((acc, p) => acc + Number(p.montoTotal), 0);
+  const totalDesviacion = totalPresupuesto > 0 ? ((totalABC - totalPresupuesto) / totalPresupuesto) * 100 : 0;
+
+  // Generar presupuesto automáticamente al registrar costos ABC
+  useEffect(() => {
+    if (!session?.user?.email) return;
+    // Por cada proyecto sin presupuesto, crear uno igual al costo ABC total
+    costosPorProyecto.forEach(({ proyecto, total, montoPresupuesto }) => {
+      if (proyecto && total > 0 && montoPresupuesto === 0) {
+        fetch("/api/presupuestos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: proyecto,
+            montoTotal: total,
+            fechaInicio: new Date().toISOString(),
+            email: session.user.email,
+          }),
+        })
+          .then(res => res.json())
+          .then(nuevo => {
+            setPresupuestos(prev => [...prev, { nombre: nuevo.nombre, montoTotal: nuevo.montoTotal, fechaInicio: nuevo.fechaInicio }]);
+          });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costosPorProyecto, session?.user?.email]);
+
+  // Ayuda y pasos para el usuario
+  const pasos = [
+    "1. Registra cada actividad relevante de tu empresa, asignando su costo, driver y proyecto.",
+    "2. El sistema suma automáticamente los costos ABC y genera un presupuesto base para cada proyecto.",
+    "3. Puedes editar/eliminar actividades y ver el impacto en el presupuesto y la desviación.",
+    "4. Analiza los resultados en la tabla y los gráficos del reporte.",
+    "5. Si lo deseas, ajusta el presupuesto manualmente en la sección de presupuestos para simular escenarios.",
+  ];
+
+  // Datos para gráfica visual de proyectos
+  const dataProyectos = {
+    labels: costosPorProyecto.map(p => p.proyecto),
+    datasets: [
+      {
+        label: "Costo ABC",
+        data: costosPorProyecto.map(p => p.total),
+        backgroundColor: "#2563eb",
+      },
+      {
+        label: "Presupuesto",
+        data: costosPorProyecto.map(p => p.montoPresupuesto),
+        backgroundColor: "#facc15",
+      },
+    ],
+  };
+  const optionsProyectos = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" as const },
+      title: { display: true, text: "Comparativo Costo ABC vs Presupuesto por Proyecto" },
+    },
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow">
       <h2 className="text-xl font-bold mb-4 text-blue-800">Registro de Actividades ABC</h2>
+      <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded">
+        <h4 className="font-semibold text-blue-700 mb-2">¿Cómo usar este apartado?</h4>
+        <ol className="list-decimal pl-6 text-blue-900 text-sm space-y-1">
+          {pasos.map((p, i) => <li key={i}>{p}</li>)}
+        </ol>
+      </div>
+      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded text-yellow-900 text-sm">
+        <strong>Totales generales:</strong> Costo ABC: <span className="font-bold">${totalABC.toFixed(2)}</span> | Presupuesto: <span className="font-bold">${totalPresupuesto.toFixed(2)}</span> | Desviación: <span className={`font-bold ${totalDesviacion > 0 ? 'text-red-600' : 'text-green-600'}`}>{totalDesviacion.toFixed(2)}%</span>
+      </div>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <input name="nombre" value={form.nombre} onChange={handleChange} placeholder="Nombre actividad" className="border p-2 rounded" required />
         <input name="costo" value={form.costo} onChange={handleChange} placeholder="Costo unitario" type="number" className="border p-2 rounded" required />
@@ -161,6 +244,9 @@ export default function ABCActividades() {
           ))}
         </tbody>
       </table>
+      <div className="mb-8">
+        <Bar data={dataProyectos} options={optionsProyectos} />
+      </div>
       <h3 className="text-lg font-bold mb-2 text-blue-700">Actividades Registradas</h3>
       <table className="w-full border rounded">
         <thead className="bg-blue-100">

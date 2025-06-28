@@ -88,29 +88,66 @@ function CostosPorSprint({ costos, presupuestos }: { costos: Costo[]; presupuest
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      window.location.href = '/login';
+    },
+  });
   const router = useRouter();
+  
   const [costos, setCostos] = useState<Costo[]>([]);
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
+  
+  // Redirigir si no hay sesión
+  useEffect(() => {
+    if (status !== 'loading' && !session) {
+      router.push('/login');
+    }
+  }, [status, session, router]);
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (!session) return;
-    fetch(`/api/costos?email=${session.user.email}`)
-      .then(res => res.json())
-      .then(data => setCostos(data))
-      .catch(() => setCostos([]));
-    fetch(`/api/presupuestos?email=${session.user.email}`)
-      .then(res => res.json())
-      .then(data => setPresupuestos(data))
-      .catch(() => setPresupuestos([]));
+    const fetchData = async () => {
+      if (status === "loading") return;
+      if (!session?.user?.email) return;
+      
+      try {
+        const [costosRes, presupuestosRes] = await Promise.all([
+          fetch(`/api/costos?email=${session.user.email}`),
+          fetch(`/api/presupuestos?email=${session.user.email}`)
+        ]);
+        
+        if (costosRes.ok) {
+          const costosData = await costosRes.json();
+          setCostos(costosData);
+        }
+        
+        if (presupuestosRes.ok) {
+          const presupuestosData = await presupuestosRes.json();
+          setPresupuestos(presupuestosData);
+        }
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+      }
+    };
+
+    fetchData();
   }, [session, status]);
 
-  if (status === "loading" || !session) {
-    return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
-  const user = session.user as { role?: string; name?: string };
+  if (!session) {
+    router.push('/login');
+    return null;
+  }
+
+  const user = session.user as { role?: string; name?: string; email?: string };
   const isAdmin = user.role === "ADMIN";
 
   // Saludo según la hora
@@ -132,7 +169,7 @@ export default function DashboardPage() {
       <aside className="hidden md:flex flex-col w-64 bg-white/95 border-r border-blue-100 shadow-lg min-h-screen py-8 px-4">
         <div className="flex flex-col items-center mb-10">
           <div className="bg-blue-700 rounded-full p-4 mb-2 text-white text-2xl font-bold shadow-lg">
-            {getInitials(user.name)}
+            {getInitials(user.name || '')}
           </div>
           <h2 className="text-xl font-bold text-blue-700">Konsultech</h2>
           <span className="text-xs text-gray-500">{isAdmin ? "Admin" : "Cliente"}</span>
@@ -180,7 +217,7 @@ export default function DashboardPage() {
           <header className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
             <div className="flex items-center gap-4">
               <div className="bg-white rounded-full p-2 shadow-md flex items-center justify-center w-12 h-12 text-blue-700 font-extrabold text-xl border-2 border-blue-200">
-                {getInitials(user.name)}
+                {getInitials(user.name || '')}
               </div>
               <div>
                 <h1 className="text-2xl font-extrabold text-white drop-shadow">{getGreeting()}, {user.name}!</h1>
@@ -218,12 +255,15 @@ export default function DashboardPage() {
           </section>
           {/* Accesos rápidos */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-            <div onClick={() => router.push("/costos")}
-              className="cursor-pointer bg-blue-700 hover:bg-blue-800 text-white rounded-xl shadow p-6 flex flex-col items-center transition group hover:scale-105" title="Registrar costos">
+            <a 
+              href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/costos`}
+              className="cursor-pointer bg-blue-700 hover:bg-blue-800 text-white rounded-xl shadow p-6 flex flex-col items-center transition group hover:scale-105 no-underline" 
+              title="Registrar costos"
+            >
               <FaPlusCircle className="text-3xl mb-2 group-hover:scale-110 transition" />
               <span className="font-bold text-lg">Registrar Costos</span>
               <span className="text-xs text-blue-200 mt-1 text-center">Ingresa gastos del proyecto y actualiza los costos reales en tiempo real.</span>
-            </div>
+            </a>
             <div onClick={() => router.push("/presupuestos")}
               className="cursor-pointer bg-blue-700 hover:bg-blue-800 text-white rounded-xl shadow p-6 flex flex-col items-center transition group hover:scale-105" title="Generar presupuesto">
               <FaFileInvoiceDollar className="text-3xl mb-2 group-hover:scale-110 transition" />
