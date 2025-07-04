@@ -26,13 +26,28 @@ export default function RegisterPage() {
     }
 
     try {
-      // Aquí iría la lógica de registro real
-      // Por ahora, simulamos un registro exitoso
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-    } catch (err) {
-      setError("Error al crear la cuenta. Inténtalo de nuevo.");
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al crear la cuenta");
+      }
+
+      // Registro exitoso, redirigir al login
+      router.push("/login?message=Cuenta creada exitosamente. Por favor inicia sesión.");
+    } catch (err: any) {
+      setError(err.message || "Error al crear la cuenta. Inténtalo de nuevo.");
+    } finally {
       setLoading(false);
     }
   };

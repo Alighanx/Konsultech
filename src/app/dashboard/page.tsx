@@ -3,7 +3,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaCalculator, FaProjectDiagram, FaChartLine, FaFileInvoiceDollar, FaCog, FaQuestionCircle, FaPlus, FaHistory, FaUsers, FaSignOutAlt } from "react-icons/fa";
-import { useGreeting } from "@/hooks/useClientOnly";
+import ClientOnly from "@/components/ClientOnly";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession({
@@ -19,17 +19,14 @@ export default function DashboardPage() {
     tiempoAhorrado: 40
   });
 
-  const [isClient, setIsClient] = useState(false);
-
   useEffect(() => {
-    setIsClient(true);
     if (status !== 'loading' && !session) {
       router.push('/login');
     }
   }, [status, session, router]);
 
-  // Evitar problemas de hidratación mostrando loading hasta que el cliente esté listo
-  if (!isClient || status === "loading") {
+  // Mostrar loading mientras se carga la sesión
+  if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -38,12 +35,10 @@ export default function DashboardPage() {
   }
 
   if (!session) {
-    router.push('/login');
     return null;
   }
 
   const user = session.user as { role?: string; name?: string; email?: string };
-  const greeting = useGreeting();
 
   const getInitials = (name: string) => {
     return name
@@ -62,8 +57,20 @@ export default function DashboardPage() {
     }).format(precio);
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "¡Buenos días";
+    if (hour < 19) return "¡Buenas tardes";
+    return "¡Buenas noches";
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <ClientOnly fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    }>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,7 +115,7 @@ export default function DashboardPage() {
         {/* Saludo */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {greeting}, {user.name?.split(' ')[0] || 'Usuario'}
+            {getGreeting()}, {user.name?.split(' ')[0] || 'Usuario'}
           </h2>
           <p className="text-gray-600">
             Bienvenido a tu centro de control para simulación de presupuestos de proyectos TI
@@ -231,6 +238,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ClientOnly>
   );
 }

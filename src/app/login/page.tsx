@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCalculator, FaSpinner } from "react-icons/fa";
 
 export default function LoginPage() {
@@ -10,7 +10,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [demoMessage, setDemoMessage] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const message = searchParams.get('message');
+    if (message) {
+      setSuccessMessage(message);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +53,32 @@ export default function LoginPage() {
   const handleDemoLogin = async () => {
     setIsLoading(true);
     setError("");
+    setDemoMessage("");
 
     try {
+      // Primero asegurar que el usuario demo existe
+      setDemoMessage("Creando cuenta demo...");
+      const createDemoResponse = await fetch("/api/auth/create-demo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!createDemoResponse.ok) {
+        throw new Error("Error al crear usuario demo");
+      }
+
+      // Llenar automáticamente los campos
+      setDemoMessage("Llenando credenciales demo...");
+      setEmail("demo@konsultech.com");
+      setPassword("demo123");
+
+      // Pequeña pausa para que el usuario vea los campos llenados
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Ahora intentar hacer login
+      setDemoMessage("Iniciando sesión...");
       const result = await signIn("credentials", {
         email: "demo@konsultech.com",
         password: "demo123",
@@ -52,17 +86,19 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Error al acceder con la cuenta demo.");
+        setError("Error al acceder con la cuenta demo. El usuario ha sido creado, intenta de nuevo.");
       } else {
         const session = await getSession();
         if (session) {
+          setDemoMessage("¡Éxito! Redirigiendo al dashboard...");
           router.push("/dashboard");
         }
       }
     } catch (error) {
-      setError("Error al iniciar sesión con demo.");
+      setError("Error al iniciar sesión con demo. Por favor intenta de nuevo.");
     } finally {
       setIsLoading(false);
+      setDemoMessage("");
     }
   };
 
@@ -87,6 +123,20 @@ export default function LoginPage() {
             <p className="text-gray-600">Accede a tu cuenta para comenzar a simular presupuestos</p>
           </div>
 
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-600 text-sm">{successMessage}</p>
+            </div>
+          )}
+
+          {/* Demo Message */}
+          {demoMessage && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-600 text-sm font-medium">{demoMessage}</p>
+            </div>
+          )}
+
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -98,7 +148,7 @@ export default function LoginPage() {
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-blue-800 text-sm font-medium mb-2">🚀 Cuenta Demo Disponible</p>
             <p className="text-blue-600 text-sm">
-              Puedes probar la plataforma con la cuenta demo sin necesidad de registro.
+              Al hacer clic en el botón de abajo, se llenará automáticamente el formulario con las credenciales de demo y se iniciará sesión.
             </p>
           </div>
 
@@ -181,10 +231,10 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <FaSpinner className="w-4 h-4 animate-spin" />
-                  Accediendo...
+                  Preparando demo...
                 </>
               ) : (
-                "🎯 Probar con Cuenta Demo"
+                "🎯 Llenar Datos Demo e Iniciar Sesión"
               )}
             </button>
           </div>

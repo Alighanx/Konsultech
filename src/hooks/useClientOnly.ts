@@ -27,10 +27,20 @@ export function useCurrentDate(): Date | null {
  * Hook para obtener un saludo basado en la hora actual
  */
 export function useGreeting(): string {
-  return useClientOnly(() => {
+  const [greeting, setGreeting] = useState("¡Hola");
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
     const hour = new Date().getHours();
-    if (hour < 12) return "¡Buenos días";
-    if (hour < 19) return "¡Buenas tardes";
-    return "¡Buenas noches";
-  }, "¡Hola");
+    if (hour < 12) {
+      setGreeting("¡Buenos días");
+    } else if (hour < 19) {
+      setGreeting("¡Buenas tardes");
+    } else {
+      setGreeting("¡Buenas noches");
+    }
+  }, []);
+
+  return greeting;
 }
