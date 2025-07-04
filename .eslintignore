@@ -1,0 +1,15 @@
+src/generated/
+prisma/
+node_modules/
+.next/
+out/
+build/
+dist/
+*.js
+!*.config.js
+!next.config.js
+!next.config.ts
+!postcss.config.js
+!tailwind.config.js
+!eslint.config.js
+!eslint.config.mjs

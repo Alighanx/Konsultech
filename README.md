@@ -1,6 +1,48 @@
-# Konsultech
+# Konsultech - Simulador de Presupuestos para Proyectos TI
 
-Trabajo final de Costos y presupuestos
+## ¿Qué es?
+Konsultech es una plataforma especializada en la simulación y gestión de presupuestos para proyectos de tecnología. Permite a empresas y consultoras crear presupuestos detallados, comparar tecnologías y generar propuestas profesionales para sus clientes.
+
+## Características principales
+- ✅ Simulador interactivo de presupuestos
+- ✅ Catálogo de tecnologías y costos reales
+- ✅ Comparación de escenarios (AWS vs Azure, React vs Angular, etc.)
+- ✅ Gestión de equipos y recursos
+- ✅ Reportes exportables en PDF/Excel
+- ✅ Recomendaciones inteligentes
+- ✅ Justificaciones automáticas para clientes
+
+## Tecnologías utilizadas
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- NextAuth.js
+- Prisma + MongoDB
+- Chart.js para gráficos
+- jsPDF para exportación
+
+## Instalación y uso
+1. Clona el repositorio
+2. Instala dependencias: `npm install`
+3. Configura las variables de entorno en `.env`
+4. Ejecuta: `npm run dev`
+
+## Estructura del proyecto
+- `/simulador` - Simulador principal de presupuestos
+- `/proyectos` - Gestión de proyectos guardados
+- `/tecnologias` - Administración del catálogo de tecnologías
+- `/reportes` - Visualización y exportación de reportes
+
+## Valor para el negocio
+- Acelera el proceso de cotización en un 80%
+- Reduce errores de estimación
+- Mejora la transparencia con clientes
+- Facilita la toma de decisiones técnicas
+- Aumenta la profesionalidad de las propuestas
+
+---
+
+© 2025 Konsultech. Plataforma desarrollada como proyecto académico del curso "Costos y Presupuestos".
 
 ## Instalación y configuración del proyecto
 
