@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         ...tecnologiasFiltradas.backend,
         ...tecnologiasFiltradas.database,
         ...tecnologiasFiltradas.mobile,
+        ...tecnologiasFiltradas.gaming,
         ...tecnologiasFiltradas.infrastructure,
         ...tecnologiasFiltradas.tools,
         ...tecnologiasFiltradas.security,

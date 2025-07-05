@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaCode, FaDatabase, FaCloud, FaTools, FaLock, FaPalette, FaDownload, FaChartBar, FaEdit, FaSave, FaUsers, FaMobileAlt } from "react-icons/fa";
+import { FaArrowLeft, FaCode, FaDatabase, FaCloud, FaTools, FaLock, FaPalette, FaDownload, FaChartBar, FaEdit, FaSave, FaUsers, FaMobileAlt, FaGamepad } from "react-icons/fa";
 import { getTecnologiasPorTipoProyecto, type Tecnologia } from "../../../../data/tecnologias";
 
 interface TecnologiaLocal {
@@ -22,6 +22,7 @@ interface ConfiguracionSimulador {
   backend: Tecnologia[];
   database: Tecnologia[];
   mobile: Tecnologia[];
+  gaming: Tecnologia[];
   infrastructure: Tecnologia[];
   tools: Tecnologia[];
   security: Tecnologia[];
@@ -57,6 +58,7 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
     backend: Tecnologia[];
     database: Tecnologia[];
     mobile: Tecnologia[];
+    gaming: Tecnologia[];
     infrastructure: Tecnologia[];
     tools: Tecnologia[];
     security: Tecnologia[];
@@ -84,6 +86,31 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
       calcularPresupuesto(configuracion);
     }
   }, [configuracion]);
+
+  const obtenerRequerimientosProyecto = () => {
+    // Obtener requerimientos guardados o usar valores por defecto
+    try {
+      const requerimientos = localStorage.getItem(`requerimientos_${projectId}`);
+      if (requerimientos) {
+        return JSON.parse(requerimientos);
+      }
+    } catch (error) {
+      console.error('Error al obtener requerimientos:', error);
+    }
+
+    // Valores por defecto
+    return {
+      nombre: `Proyecto ${projectId}`,
+      descripcion: 'Descripción del proyecto',
+      tipoProyecto: 'web-app',
+      alcance: 'completo',
+      usuarios: '100-1000',
+      complejidad: 'media',
+      plazo: '3-6',
+      presupuestoReferencia: '50000-100000',
+      caracteristicasEspeciales: []
+    };
+  };
 
   const cargarConfiguracion = async () => {
     try {
@@ -153,6 +180,7 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
       backend: [],
       database: [],
       mobile: [],
+      gaming: [],
       infrastructure: [],
       tools: [],
       security: [],
@@ -198,6 +226,7 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
         backend: configuracion.backend.map(t => t.id),
         database: configuracion.database.map(t => t.id),
         mobile: configuracion.mobile.map(t => t.id),
+        gaming: configuracion.gaming.map(t => t.id),
         infrastructure: configuracion.infrastructure.map(t => t.id),
         tools: configuracion.tools.map(t => t.id),
         security: configuracion.security.map(t => t.id),
@@ -217,31 +246,6 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
     } catch (error) {
       console.error('Error al guardar configuración:', error);
     }
-  };
-
-  const obtenerRequerimientosProyecto = () => {
-    // Obtener requerimientos guardados o usar valores por defecto
-    try {
-      const requerimientos = localStorage.getItem(`requerimientos_${projectId}`);
-      if (requerimientos) {
-        return JSON.parse(requerimientos);
-      }
-    } catch (error) {
-      console.error('Error al obtener requerimientos:', error);
-    }
-
-    // Valores por defecto
-    return {
-      nombre: `Proyecto ${projectId}`,
-      descripcion: 'Descripción del proyecto',
-      tipoProyecto: 'web-app',
-      alcance: 'completo',
-      usuarios: '100-1000',
-      complejidad: 'media',
-      plazo: '3-6',
-      presupuestoReferencia: '50000-100000',
-      caracteristicasEspeciales: []
-    };
   };
 
   const obtenerConfiguracionEjemplo = (): ConfiguracionSimulador => {
@@ -264,6 +268,7 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
       ...config.backend,
       ...config.database,
       ...config.mobile,
+      ...config.gaming,
       ...config.infrastructure,
       ...config.tools,
       ...config.security,
@@ -326,8 +331,15 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
     ];
     
     // Agregar categoría mobile para proyectos móviles
-    if (tipoProyecto === 'mobile-app' || tipoProyecto === 'game') {
+    if (tipoProyecto === 'mobile-app') {
       categoriasBase.splice(2, 0, { id: 'mobile', nombre: 'Desarrollo Móvil', icon: FaMobileAlt });
+    }
+    
+    // Agregar categoría gaming para proyectos de videojuegos
+    if (tipoProyecto === 'game') {
+      categoriasBase.splice(2, 0, { id: 'gaming', nombre: 'Gaming/Videojuegos', icon: FaGamepad });
+      // También mostrar mobile para gaming móvil
+      categoriasBase.splice(3, 0, { id: 'mobile', nombre: 'Gaming Móvil', icon: FaMobileAlt });
     }
     
     return categoriasBase;

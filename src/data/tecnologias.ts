@@ -2,7 +2,7 @@
 export interface Tecnologia {
   id: string;
   nombre: string;
-  categoria: 'frontend' | 'backend' | 'database' | 'infrastructure' | 'tools' | 'security' | 'design' | 'mobile';
+  categoria: 'frontend' | 'backend' | 'database' | 'infrastructure' | 'tools' | 'security' | 'design' | 'mobile' | 'gaming' | 'devops' | 'analytics' | 'ai';
   tipo: 'licencia' | 'servicio' | 'desarrollo' | 'subscripcion';
   precio: number; // Precio en soles peruanos (PEN)
   unidad: 'mes' | 'año' | 'usuario/mes' | 'usuario/año' | 'proyecto' | 'gratis' | 'hora';
@@ -1417,6 +1417,544 @@ export const TECNOLOGIAS: Tecnologia[] = [
     url_oficial: 'https://firebase.google.com/products/auth'
   },
 
+  // GAMING - ENGINES Y FRAMEWORKS
+  {
+    id: 'unity-3d',
+    nombre: 'Unity 3D',
+    categoria: 'gaming',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Engine líder para desarrollo de videojuegos 2D y 3D multiplataforma',
+    recomendada: true,
+    ventajas: ['Cross-platform', 'Asset Store extenso', 'Visual scripting', 'C# scripting', 'Gran comunidad'],
+    desventajas: ['App size grande', 'Puede ser complejo para principiantes'],
+    alternativas: ['Unreal Engine', 'Godot', 'Construct 3'],
+    casos_uso: ['Juegos 2D/3D', 'Apps AR/VR', 'Simuladores', 'Juegos móviles'],
+    complejidad: 'media',
+    popularidad: 5,
+    soporte: 'empresa',
+    url_oficial: 'https://unity.com'
+  },
+  {
+    id: 'unreal-engine-5',
+    nombre: 'Unreal Engine 5',
+    categoria: 'gaming',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Engine de Epic Games para juegos AAA con gráficos de alta calidad',
+    recomendada: true,
+    ventajas: ['Gráficos superiores', 'Blueprint visual scripting', 'Nanite virtualization', 'Lumen lighting'],
+    desventajas: ['App size muy grande', 'Requiere hardware potente', 'Curva de aprendizaje empinada'],
+    alternativas: ['Unity', 'CryEngine', 'Godot'],
+    casos_uso: ['Juegos AAA', 'Simulaciones arquitectónicas', 'Películas/TV', 'VR/AR avanzado'],
+    complejidad: 'alta',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://unrealengine.com'
+  },
+  {
+    id: 'godot-4',
+    nombre: 'Godot 4',
+    categoria: 'gaming',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Engine open source para desarrollo de juegos 2D y 3D',
+    recomendada: true,
+    ventajas: ['Completamente gratis', 'Open source', 'GDScript fácil', 'Node system único'],
+    desventajas: ['Ecosistema más pequeño', 'Menos recursos que Unity/Unreal'],
+    alternativas: ['Unity', 'Unreal Engine', 'Defold'],
+    casos_uso: ['Juegos indie', 'Prototipos', 'Juegos 2D', 'Juegos móviles simples'],
+    complejidad: 'baja',
+    popularidad: 3,
+    soporte: 'comunidad',
+    url_oficial: 'https://godotengine.org'
+  },
+  {
+    id: 'construct-3',
+    nombre: 'Construct 3',
+    categoria: 'gaming',
+    tipo: 'licencia',
+    precio: 185,
+    unidad: 'año',
+    descripcion: 'Editor de juegos 2D basado en navegador sin necesidad de programar',
+    recomendada: false,
+    ventajas: ['No code', 'Basado en navegador', 'Fácil de usar', 'Exportación múltiple'],
+    desventajas: ['Solo 2D', 'Limitado para juegos complejos', 'Requiere suscripción'],
+    alternativas: ['GameMaker Studio', 'Unity', 'Godot'],
+    casos_uso: ['Juegos 2D simples', 'Prototipos rápidos', 'Juegos educativos'],
+    complejidad: 'baja',
+    popularidad: 2,
+    soporte: 'empresa',
+    url_oficial: 'https://construct.net'
+  },
+  {
+    id: 'gamemaker-studio',
+    nombre: 'GameMaker Studio 2',
+    categoria: 'gaming',
+    tipo: 'licencia',
+    precio: 370,
+    unidad: 'año',
+    descripcion: 'Engine especializado en juegos 2D con GML scripting',
+    recomendada: false,
+    ventajas: ['Excelente para 2D', 'GML scripting potente', 'Workflow optimizado'],
+    desventajas: ['Solo 2D', 'Costo alto', 'Curva de aprendizaje de GML'],
+    alternativas: ['Unity 2D', 'Godot', 'Construct'],
+    casos_uso: ['Juegos 2D', 'Pixel art games', 'Indie games'],
+    complejidad: 'media',
+    popularidad: 3,
+    soporte: 'empresa',
+    url_oficial: 'https://gamemaker.io'
+  },
+  {
+    id: 'defold',
+    nombre: 'Defold',
+    categoria: 'gaming',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Engine de King para juegos móviles 2D optimizado para performance',
+    recomendada: false,
+    ventajas: ['Gratis', 'Optimizado para móviles', 'Apps pequeñas', 'Lua scripting'],
+    desventajas: ['Solo 2D', 'Comunidad pequeña', 'Limitado para juegos complejos'],
+    alternativas: ['Unity 2D', 'Godot', 'Corona SDK'],
+    casos_uso: ['Juegos móviles 2D', 'Casual games', 'Puzzle games'],
+    complejidad: 'media',
+    popularidad: 2,
+    soporte: 'empresa',
+    url_oficial: 'https://defold.com'
+  },
+  {
+    id: 'cryengine',
+    nombre: 'CryEngine',
+    categoria: 'gaming',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Engine de Crytek para juegos con gráficos realistas',
+    recomendada: false,
+    ventajas: ['Gráficos impresionantes', 'Gratis', 'Flowgraph visual scripting'],
+    desventajas: ['Muy complejo', 'Documentación limitada', 'Comunidad pequeña'],
+    alternativas: ['Unreal Engine', 'Unity', 'Lumberyard'],
+    casos_uso: ['Juegos FPS', 'Simulaciones realistas', 'VR experiences'],
+    complejidad: 'alta',
+    popularidad: 2,
+    soporte: 'empresa',
+    url_oficial: 'https://cryengine.com'
+  },
+
+  // GAMING - BACKEND Y SERVICIOS
+  {
+    id: 'photon-fusion',
+    nombre: 'Photon Fusion',
+    categoria: 'gaming',
+    tipo: 'servicio',
+    precio: 370,
+    unidad: 'mes',
+    descripcion: 'Solución de networking para juegos multijugador en tiempo real',
+    recomendada: true,
+    ventajas: ['Low latency', 'Client-server architecture', 'Integración Unity'],
+    desventajas: ['Costo alto', 'Curva de aprendizaje', 'Vendor lock-in'],
+    alternativas: ['Mirror Networking', 'Unity Netcode', 'Custom backend'],
+    casos_uso: ['Juegos multijugador', 'Battle royale', 'MOBA', 'FPS online'],
+    complejidad: 'alta',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://photonengine.com'
+  },
+  {
+    id: 'playfab',
+    nombre: 'PlayFab',
+    categoria: 'gaming',
+    tipo: 'servicio',
+    precio: 148,
+    unidad: 'mes',
+    descripcion: 'Backend completo para juegos de Microsoft con analytics y LiveOps',
+    recomendada: true,
+    ventajas: ['Backend completo', 'Analytics incluido', 'Matchmaking', 'Azure integration'],
+    desventajas: ['Microsoft ecosystem', 'Costo escalable', 'Complejidad'],
+    alternativas: ['GameSparks', 'Firebase Gaming', 'Custom backend'],
+    casos_uso: ['Juegos multijugador', 'LiveOps', 'Analytics gaming', 'Leaderboards'],
+    complejidad: 'media',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://playfab.com'
+  },
+  {
+    id: 'agones',
+    nombre: 'Agones',
+    categoria: 'gaming',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Plataforma open source para hosting de servidores de juegos en Kubernetes',
+    recomendada: false,
+    ventajas: ['Open source', 'Kubernetes native', 'Auto-scaling', 'Cost effective'],
+    desventajas: ['Requires Kubernetes expertise', 'Setup complejo', 'Mantenimiento'],
+    alternativas: ['PlayFab', 'GameSparks', 'Custom servers'],
+    casos_uso: ['Dedicated game servers', 'Multiplayer infrastructure', 'Cloud gaming'],
+    complejidad: 'alta',
+    popularidad: 2,
+    soporte: 'comunidad',
+    url_oficial: 'https://agones.dev'
+  },
+
+  // GAMING - HERRAMIENTAS Y ARTE
+  {
+    id: 'blender',
+    nombre: 'Blender',
+    categoria: 'gaming',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Suite completa open source para modelado 3D, animación y rendering',
+    recomendada: true,
+    ventajas: ['Completamente gratis', 'Muy potente', 'Open source', 'Comunidad activa'],
+    desventajas: ['Curva de aprendizaje empinada', 'UI compleja'],
+    alternativas: ['Maya', '3ds Max', 'Cinema 4D'],
+    casos_uso: ['Modelado 3D', 'Animación', 'Texturing', 'Rendering'],
+    complejidad: 'alta',
+    popularidad: 5,
+    soporte: 'comunidad',
+    url_oficial: 'https://blender.org'
+  },
+  {
+    id: 'autodesk-maya',
+    nombre: 'Autodesk Maya',
+    categoria: 'gaming',
+    tipo: 'licencia',
+    precio: 6660,
+    unidad: 'año',
+    descripcion: 'Software profesional de animación y modelado 3D estándar en la industria',
+    recomendada: false,
+    ventajas: ['Estándar industria', 'Herramientas avanzadas', 'Pipeline profesional'],
+    desventajas: ['Muy caro', 'Complejo', 'Requiere entrenamiento'],
+    alternativas: ['Blender', '3ds Max', 'Cinema 4D'],
+    casos_uso: ['Animación profesional', 'Modelado avanzado', 'VFX', 'Game assets'],
+    complejidad: 'alta',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://autodesk.com/maya'
+  },
+  {
+    id: 'substance-suite',
+    nombre: 'Substance 3D Suite',
+    categoria: 'gaming',
+    tipo: 'licencia',
+    precio: 740,
+    unidad: 'año',
+    descripcion: 'Suite de Adobe para creación de materiales y texturas 3D',
+    recomendada: true,
+    ventajas: ['Materiales procedurales', 'Integración Unity/Unreal', 'Asset library'],
+    desventajas: ['Costo alto', 'Curva de aprendizaje', 'Subscription model'],
+    alternativas: ['Quixel Suite', 'Mari', 'Open source alternatives'],
+    casos_uso: ['Texturing', 'Material creation', 'PBR workflows', 'Game assets'],
+    complejidad: 'media',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://substance3d.adobe.com'
+  },
+  {
+    id: 'houdini',
+    nombre: 'Houdini',
+    categoria: 'gaming',
+    tipo: 'licencia',
+    precio: 8140,
+    unidad: 'año',
+    descripcion: 'Software procedural 3D para efectos visuales y generación de contenido',
+    recomendada: false,
+    ventajas: ['Procedural workflow', 'Muy potente', 'VFX industry standard'],
+    desventajas: ['Extremadamente caro', 'Muy complejo', 'Overkill para muchos proyectos'],
+    alternativas: ['Blender Geometry Nodes', 'Maya', '3ds Max'],
+    casos_uso: ['Procedural modeling', 'VFX avanzados', 'Terrain generation', 'Particle systems'],
+    complejidad: 'alta',
+    popularidad: 2,
+    soporte: 'empresa',
+    url_oficial: 'https://sidefx.com'
+  },
+
+  // GAMING - AUDIO
+  {
+    id: 'wwise',
+    nombre: 'Audiokinetic Wwise',
+    categoria: 'gaming',
+    tipo: 'licencia',
+    precio: 2220,
+    unidad: 'año',
+    descripcion: 'Motor de audio profesional para videojuegos con herramientas avanzadas',
+    recomendada: true,
+    ventajas: ['Estándar industria', 'Audio interactivo avanzado', 'Integración engines'],
+    desventajas: ['Costo alto', 'Complejo setup', 'Overkill para juegos simples'],
+    alternativas: ['FMOD', 'Unity Audio', 'Unreal Audio'],
+    casos_uso: ['Audio profesional', 'Juegos AAA', 'Audio interactivo complejo'],
+    complejidad: 'alta',
+    popularidad: 3,
+    soporte: 'empresa',
+    url_oficial: 'https://audiokinetic.com'
+  },
+  {
+    id: 'fmod',
+    nombre: 'FMOD Studio',
+    categoria: 'gaming',
+    tipo: 'licencia',
+    precio: 1110,
+    unidad: 'año',
+    descripcion: 'Sistema de audio para juegos con herramientas de diseño sonoro',
+    recomendada: false,
+    ventajas: ['Más accesible que Wwise', 'Good tools', 'Cross-platform'],
+    desventajas: ['Menos features que Wwise', 'Costo', 'Curva de aprendizaje'],
+    alternativas: ['Wwise', 'Unity Audio', 'Custom audio'],
+    casos_uso: ['Audio gaming', 'Sound design', 'Interactive audio'],
+    complejidad: 'media',
+    popularidad: 3,
+    soporte: 'empresa',
+    url_oficial: 'https://fmod.com'
+  },
+
+  // BACKEND ESPECIALIZADO PARA GAMING
+  {
+    id: 'cpp-gaming',
+    nombre: 'C++ Gaming Backend',
+    categoria: 'backend',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Backend de alto rendimiento en C++ para servidores de juegos',
+    recomendada: true,
+    ventajas: ['Máximo performance', 'Control total', 'Low latency', 'Memory efficient'],
+    desventajas: ['Muy complejo', 'Desarrollo lento', 'Propenso a errores'],
+    alternativas: ['Go gaming backend', 'Rust gaming', 'Java gaming'],
+    casos_uso: ['Servidores dedicados', 'MMO backends', 'Real-time multiplayer', 'High performance'],
+    complejidad: 'alta',
+    popularidad: 4,
+    soporte: 'comunidad',
+    url_oficial: 'https://isocpp.org'
+  },
+  {
+    id: 'golang-gaming',
+    nombre: 'Go Gaming Backend',
+    categoria: 'backend',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Backend en Go para servidores de juegos con concurrencia nativa',
+    recomendada: true,
+    ventajas: ['Concurrencia excelente', 'Performance', 'Simple deployment', 'Fast development'],
+    desventajas: ['Menos control que C++', 'Garbage collector'],
+    alternativas: ['C++ gaming', 'Rust gaming', 'Java gaming'],
+    casos_uso: ['Game servers', 'Matchmaking services', 'Real-time APIs', 'Microservices'],
+    complejidad: 'media',
+    popularidad: 3,
+    soporte: 'comunidad',
+    url_oficial: 'https://golang.org'
+  },
+  {
+    id: 'rust-gaming',
+    nombre: 'Rust Gaming Backend',
+    categoria: 'backend',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Backend seguro y rápido en Rust para aplicaciones gaming críticas',
+    recomendada: false,
+    ventajas: ['Memory safety', 'Performance C++', 'Thread safety', 'Modern language'],
+    desventajas: ['Curva de aprendizaje empinada', 'Ecosistema más pequeño'],
+    alternativas: ['C++ gaming', 'Go gaming', 'Java gaming'],
+    casos_uso: ['High-performance servers', 'Safe system programming', 'Game engines'],
+    complejidad: 'alta',
+    popularidad: 2,
+    soporte: 'comunidad',
+    url_oficial: 'https://rust-lang.org'
+  },
+
+  // DEVOPS Y CI/CD
+  {
+    id: 'github-actions',
+    nombre: 'GitHub Actions',
+    categoria: 'devops',
+    tipo: 'servicio',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Plataforma de CI/CD integrada con GitHub para automatización',
+    recomendada: true,
+    ventajas: ['Integrado con GitHub', 'Gratis para repos públicos', 'Marketplace extenso'],
+    desventajas: ['Limitado para repos privados', 'Vendor lock-in'],
+    alternativas: ['GitLab CI', 'Jenkins', 'CircleCI'],
+    casos_uso: ['CI/CD', 'Automated testing', 'Deployment', 'Code quality'],
+    complejidad: 'media',
+    popularidad: 5,
+    soporte: 'empresa',
+    url_oficial: 'https://github.com/features/actions'
+  },
+  {
+    id: 'jenkins',
+    nombre: 'Jenkins',
+    categoria: 'devops',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Servidor de automatización open source para CI/CD',
+    recomendada: false,
+    ventajas: ['Open source', 'Muy flexible', 'Plugin ecosystem extenso'],
+    desventajas: ['Setup complejo', 'Mantenimiento intensivo', 'UI anticuada'],
+    alternativas: ['GitHub Actions', 'GitLab CI', 'CircleCI'],
+    casos_uso: ['Enterprise CI/CD', 'Custom workflows', 'Legacy integration'],
+    complejidad: 'alta',
+    popularidad: 3,
+    soporte: 'comunidad',
+    url_oficial: 'https://jenkins.io'
+  },
+  {
+    id: 'docker',
+    nombre: 'Docker',
+    categoria: 'devops',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Plataforma de containerización para desarrollo y deployment',
+    recomendada: true,
+    ventajas: ['Consistencia ambiental', 'Lightweight', 'Ecosystem maduro'],
+    desventajas: ['Curva de aprendizaje', 'Overhead mínimo'],
+    alternativas: ['Podman', 'containerd', 'VM tradicionales'],
+    casos_uso: ['Containerization', 'Microservices', 'CI/CD', 'Development environments'],
+    complejidad: 'media',
+    popularidad: 5,
+    soporte: 'empresa',
+    url_oficial: 'https://docker.com'
+  },
+  {
+    id: 'kubernetes',
+    nombre: 'Kubernetes',
+    categoria: 'devops',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Orquestador de containers para deployment y scaling automático',
+    recomendada: false,
+    ventajas: ['Auto-scaling', 'Self-healing', 'Industry standard'],
+    desventajas: ['Muy complejo', 'Overkill para proyectos pequeños'],
+    alternativas: ['Docker Swarm', 'ECS', 'Cloud services'],
+    casos_uso: ['Container orchestration', 'Microservices at scale', 'Cloud native apps'],
+    complejidad: 'alta',
+    popularidad: 4,
+    soporte: 'comunidad',
+    url_oficial: 'https://kubernetes.io'
+  },
+
+  // ANALYTICS Y BUSINESS INTELLIGENCE
+  {
+    id: 'tableau',
+    nombre: 'Tableau',
+    categoria: 'analytics',
+    tipo: 'licencia',
+    precio: 2590,
+    unidad: 'año',
+    descripcion: 'Plataforma líder de visualización de datos y business intelligence',
+    recomendada: true,
+    ventajas: ['Visualizations poderosas', 'User-friendly', 'Conectores extensos'],
+    desventajas: ['Muy caro', 'Performance con big data', 'Vendor lock-in'],
+    alternativas: ['Power BI', 'Looker', 'Metabase'],
+    casos_uso: ['Business intelligence', 'Data visualization', 'Executive dashboards'],
+    complejidad: 'media',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://tableau.com'
+  },
+  {
+    id: 'power-bi',
+    nombre: 'Microsoft Power BI',
+    categoria: 'analytics',
+    tipo: 'licencia',
+    precio: 370,
+    unidad: 'mes',
+    descripcion: 'Suite de analytics de Microsoft integrada con Office 365',
+    recomendada: true,
+    ventajas: ['Integración Microsoft', 'Precio competitivo', 'Easy to use'],
+    desventajas: ['Ecosystem Microsoft', 'Menos flexible que Tableau'],
+    alternativas: ['Tableau', 'Looker', 'QlikView'],
+    casos_uso: ['Microsoft environments', 'Cost-effective BI', 'Office integration'],
+    complejidad: 'media',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://powerbi.microsoft.com'
+  },
+  {
+    id: 'metabase',
+    nombre: 'Metabase',
+    categoria: 'analytics',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Herramienta open source de BI y visualización de datos',
+    recomendada: false,
+    ventajas: ['Open source', 'Gratis', 'Fácil setup', 'Self-hosted'],
+    desventajas: ['Menos features', 'Escalabilidad limitada'],
+    alternativas: ['Tableau', 'Power BI', 'Grafana'],
+    casos_uso: ['Startups', 'Internal dashboards', 'Cost-conscious BI'],
+    complejidad: 'baja',
+    popularidad: 3,
+    soporte: 'comunidad',
+    url_oficial: 'https://metabase.com'
+  },
+
+  // AI Y MACHINE LEARNING
+  {
+    id: 'tensorflow',
+    nombre: 'TensorFlow',
+    categoria: 'ai',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Framework open source de Google para machine learning y deep learning',
+    recomendada: true,
+    ventajas: ['Ecosistema completo', 'Google support', 'Production ready'],
+    desventajas: ['Curva de aprendizaje empinada', 'Verboso'],
+    alternativas: ['PyTorch', 'Scikit-learn', 'Keras'],
+    casos_uso: ['Deep learning', 'Neural networks', 'AI apps', 'Computer vision'],
+    complejidad: 'alta',
+    popularidad: 5,
+    soporte: 'empresa',
+    url_oficial: 'https://tensorflow.org'
+  },
+  {
+    id: 'pytorch',
+    nombre: 'PyTorch',
+    categoria: 'ai',
+    tipo: 'desarrollo',
+    precio: 0,
+    unidad: 'gratis',
+    descripcion: 'Framework de machine learning de Facebook con dynamic computation graphs',
+    recomendada: true,
+    ventajas: ['Dynamic graphs', 'Pythonic', 'Research friendly'],
+    desventajas: ['Menos deployment tools', 'Memoria intensivo'],
+    alternativas: ['TensorFlow', 'JAX', 'Keras'],
+    casos_uso: ['Research', 'Prototyping', 'Computer vision', 'NLP'],
+    complejidad: 'alta',
+    popularidad: 4,
+    soporte: 'empresa',
+    url_oficial: 'https://pytorch.org'
+  },
+  {
+    id: 'openai-api',
+    nombre: 'OpenAI API',
+    categoria: 'ai',
+    tipo: 'servicio',
+    precio: 740,
+    unidad: 'mes',
+    descripcion: 'API de OpenAI para integrar GPT y otros modelos de IA',
+    recomendada: false,
+    ventajas: ['Modelos estado del arte', 'Fácil integración', 'Escalable'],
+    desventajas: ['Muy caro', 'Rate limits', 'Vendor lock-in'],
+    alternativas: ['Anthropic Claude', 'Google AI', 'Hugging Face'],
+    casos_uso: ['Chatbots', 'Content generation', 'Code assistance', 'AI features'],
+    complejidad: 'baja',
+    popularidad: 5,
+    soporte: 'empresa',
+    url_oficial: 'https://openai.com/api'
+  },
+
   // ...existing code...
 ];
 
@@ -1477,6 +2015,7 @@ export function getTecnologiasPorTipoProyecto(tipoProyecto: string): {
   backend: Tecnologia[];
   database: Tecnologia[];
   mobile: Tecnologia[];
+  gaming: Tecnologia[];
   infrastructure: Tecnologia[];
   tools: Tecnologia[];
   security: Tecnologia[];
@@ -1487,6 +2026,7 @@ export function getTecnologiasPorTipoProyecto(tipoProyecto: string): {
     backend: [] as Tecnologia[],
     database: [] as Tecnologia[],
     mobile: [] as Tecnologia[],
+    gaming: [] as Tecnologia[],
     infrastructure: [] as Tecnologia[],
     tools: [] as Tecnologia[],
     security: [] as Tecnologia[],
@@ -1826,21 +2366,48 @@ export function getTecnologiasPorTipoProyecto(tipoProyecto: string): {
       break;
 
     case 'game':
-      // Tecnologías para videojuegos
+      // Tecnologías específicas para videojuegos
+      result.gaming = TECNOLOGIAS.filter(tech => 
+        tech.categoria === 'gaming' && (
+          tech.id.includes('unity') ||
+          tech.id.includes('unreal') ||
+          tech.id.includes('godot') ||
+          tech.id.includes('construct') ||
+          tech.id.includes('gamemaker') ||
+          tech.id.includes('defold') ||
+          tech.id.includes('cryengine') ||
+          tech.id.includes('photon') ||
+          tech.id.includes('playfab') ||
+          tech.id.includes('agones') ||
+          tech.id.includes('blender') ||
+          tech.id.includes('maya') ||
+          tech.id.includes('substance') ||
+          tech.id.includes('houdini') ||
+          tech.id.includes('wwise') ||
+          tech.id.includes('fmod') ||
+          tech.casos_uso.includes('Juegos') ||
+          tech.casos_uso.includes('Gaming') ||
+          tech.casos_uso.includes('Game development')
+        )
+      );
+      
+      // Solo tecnologías móviles relevantes para gaming (Unity móvil, etc.)
       result.mobile = TECNOLOGIAS.filter(tech => 
         tech.categoria === 'mobile' && (
           tech.id.includes('unity') ||
           tech.id.includes('unreal') ||
           tech.id.includes('godot') ||
-          tech.id.includes('react-native') ||
-          tech.id.includes('flutter') ||
-          tech.casos_uso.includes('Juegos') ||
+          tech.casos_uso.includes('Juegos móviles') ||
           tech.casos_uso.includes('Gaming')
         )
       );
       
+      // Backend especializado para gaming
       result.backend = TECNOLOGIAS.filter(tech => 
         tech.categoria === 'backend' && (
+          tech.id.includes('cpp-gaming') ||
+          tech.id.includes('golang-gaming') ||
+          tech.id.includes('rust-gaming') ||
           tech.id.includes('node') ||
           tech.id.includes('golang') ||
           tech.id.includes('java') ||
@@ -1850,10 +2417,12 @@ export function getTecnologiasPorTipoProyecto(tipoProyecto: string): {
           tech.id.includes('c++') ||
           tech.casos_uso.includes('Real-time') ||
           tech.casos_uso.includes('Gaming') ||
-          tech.casos_uso.includes('APIs')
+          tech.casos_uso.includes('Game servers') ||
+          tech.casos_uso.includes('Multiplayer')
         )
       );
       
+      // Bases de datos para gaming (tiempo real, caching)
       result.database = TECNOLOGIAS.filter(tech => 
         tech.categoria === 'database' && (
           tech.id.includes('redis') ||
@@ -1861,7 +2430,23 @@ export function getTecnologiasPorTipoProyecto(tipoProyecto: string): {
           tech.id.includes('postgresql') ||
           tech.id.includes('firebase') ||
           tech.casos_uso.includes('Real-time') ||
-          tech.casos_uso.includes('Gaming')
+          tech.casos_uso.includes('Gaming') ||
+          tech.casos_uso.includes('Caching')
+        )
+      );
+      
+      // Herramientas específicas para desarrollo de juegos
+      result.tools = TECNOLOGIAS.filter(tech => 
+        tech.categoria === 'tools' && (
+          tech.id.includes('github') ||
+          tech.id.includes('gitlab') ||
+          tech.id.includes('unity') ||
+          tech.id.includes('blender') ||
+          tech.id.includes('figma') ||
+          tech.id.includes('photoshop') ||
+          tech.casos_uso.includes('Game development') ||
+          tech.casos_uso.includes('3D modeling') ||
+          tech.casos_uso.includes('Game testing')
         )
       );
       break;
@@ -1872,6 +2457,7 @@ export function getTecnologiasPorTipoProyecto(tipoProyecto: string): {
       result.backend = TECNOLOGIAS.filter(tech => tech.categoria === 'backend' && tech.recomendada);
       result.database = TECNOLOGIAS.filter(tech => tech.categoria === 'database' && tech.recomendada);
       result.mobile = TECNOLOGIAS.filter(tech => tech.categoria === 'mobile' && tech.recomendada);
+      result.gaming = TECNOLOGIAS.filter(tech => tech.categoria === 'gaming' && tech.recomendada);
       break;
   }
 
