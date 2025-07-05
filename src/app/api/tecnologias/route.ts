@@ -3,6 +3,7 @@ import {
   TECNOLOGIAS, 
   getTecnologiasPorCategoria, 
   getTecnologiasRecomendadas, 
+  getTecnologiasPorTipoProyecto,
   buscarTecnologias 
 } from '../../../data/tecnologias';
 
@@ -12,12 +13,29 @@ export async function GET(request: NextRequest) {
     const categoria = searchParams.get('categoria');
     const busqueda = searchParams.get('busqueda');
     const recomendadas = searchParams.get('recomendadas');
+    const tipoProyecto = searchParams.get('tipoProyecto');
 
     let tecnologias = TECNOLOGIAS;
 
+    // Filtrar por tipo de proyecto (prioridad alta)
+    if (tipoProyecto) {
+      const tecnologiasFiltradas = getTecnologiasPorTipoProyecto(tipoProyecto);
+      // Combinar todas las categorías en un solo array
+      tecnologias = [
+        ...tecnologiasFiltradas.frontend,
+        ...tecnologiasFiltradas.backend,
+        ...tecnologiasFiltradas.database,
+        ...tecnologiasFiltradas.mobile,
+        ...tecnologiasFiltradas.infrastructure,
+        ...tecnologiasFiltradas.tools,
+        ...tecnologiasFiltradas.security,
+        ...tecnologiasFiltradas.design
+      ];
+    }
+
     // Filtrar por categoría
     if (categoria) {
-      tecnologias = getTecnologiasPorCategoria(categoria);
+      tecnologias = tecnologias.filter(tech => tech.categoria === categoria);
     }
 
     // Filtrar por término de búsqueda
@@ -27,12 +45,13 @@ export async function GET(request: NextRequest) {
 
     // Filtrar solo recomendadas
     if (recomendadas === 'true') {
-      tecnologias = getTecnologiasRecomendadas();
+      tecnologias = tecnologias.filter(tech => tech.recomendada);
     }
 
     return NextResponse.json({
       success: true,
-      data: tecnologias
+      data: tecnologias,
+      total: tecnologias.length
     });
 
   } catch (error) {

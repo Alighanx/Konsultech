@@ -2,9 +2,10 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaCode, FaDatabase, FaCloud, FaTools, FaLock, FaPalette, FaDownload, FaChartBar, FaEdit, FaSave } from "react-icons/fa";
+import { FaArrowLeft, FaCode, FaDatabase, FaCloud, FaTools, FaLock, FaPalette, FaDownload, FaChartBar, FaEdit, FaSave, FaUsers, FaMobileAlt } from "react-icons/fa";
+import { getTecnologiasPorTipoProyecto, type Tecnologia } from "../../../../data/tecnologias";
 
-interface Tecnologia {
+interface TecnologiaLocal {
   id: string;
   nombre: string;
   categoria: string;
@@ -20,6 +21,7 @@ interface ConfiguracionSimulador {
   frontend: Tecnologia[];
   backend: Tecnologia[];
   database: Tecnologia[];
+  mobile: Tecnologia[];
   infrastructure: Tecnologia[];
   tools: Tecnologia[];
   security: Tecnologia[];
@@ -50,6 +52,16 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
   const [totalPresupuesto, setTotalPresupuesto] = useState(0);
   const [loading, setLoading] = useState(true);
   const [projectId, setProjectId] = useState<string>('');
+  const [tecnologiasDisponibles, setTecnologiasDisponibles] = useState<{
+    frontend: Tecnologia[];
+    backend: Tecnologia[];
+    database: Tecnologia[];
+    mobile: Tecnologia[];
+    infrastructure: Tecnologia[];
+    tools: Tecnologia[];
+    security: Tecnologia[];
+    design: Tecnologia[];
+  } | null>(null);
 
   useEffect(() => {
     const initializeParams = async () => {
@@ -59,163 +71,199 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
     
     initializeParams();
     
-    if (status !== 'loading' && !session) {
-      router.push('/login');
-    }
+    // Permitir acceso en modo demo - no redirigir a login
+    // if (status !== 'loading' && !session) {
+    //   router.push('/login');
+    // }
     cargarConfiguracion();
   }, [status, session, router, params]);
 
+  // Recalcular presupuesto cuando cambie la configuración
+  useEffect(() => {
+    if (configuracion) {
+      calcularPresupuesto(configuracion);
+    }
+  }, [configuracion]);
+
   const cargarConfiguracion = async () => {
     try {
-      // Simulación de datos - en implementación real vendría de la API
-      const configEjemplo: ConfiguracionSimulador = {
-        frontend: [
-          {
-            id: 'react',
-            nombre: 'React + TypeScript',
-            categoria: 'frontend',
-            tipo: 'desarrollo',
-            precio: 0,
-            unidad: 'gratis',
-            descripcion: 'Biblioteca de JavaScript para interfaces de usuario',
-            recomendada: true,
-            alternativas: ['Vue.js', 'Angular', 'Svelte']
-          },
-          {
-            id: 'nextjs',
-            nombre: 'Next.js',
-            categoria: 'frontend',
-            tipo: 'desarrollo',
-            precio: 0,
-            unidad: 'gratis',
-            descripcion: 'Framework de React para producción',
-            recomendada: true
-          }
-        ],
-        backend: [
-          {
-            id: 'nodejs',
-            nombre: 'Node.js + Express',
-            categoria: 'backend',
-            tipo: 'desarrollo',
-            precio: 0,
-            unidad: 'gratis',
-            descripcion: 'Runtime de JavaScript para servidor',
-            recomendada: true,
-            alternativas: ['Python Django', 'Java Spring', 'C# .NET']
-          }
-        ],
-        database: [
-          {
-            id: 'postgresql',
-            nombre: 'PostgreSQL',
-            categoria: 'database',
-            tipo: 'servicio',
-            precio: 25,
-            unidad: 'mes',
-            descripcion: 'Base de datos relacional avanzada',
-            recomendada: true,
-            alternativas: ['MySQL', 'MongoDB', 'Redis']
-          }
-        ],
-        infrastructure: [
-          {
-            id: 'aws-ec2',
-            nombre: 'AWS EC2',
-            categoria: 'infrastructure',
-            tipo: 'servicio',
-            precio: 50,
-            unidad: 'mes',
-            descripcion: 'Servidores virtuales escalables',
-            recomendada: true,
-            alternativas: ['Google Cloud', 'Azure', 'DigitalOcean']
-          }
-        ],
-        tools: [
-          {
-            id: 'github',
-            nombre: 'GitHub Pro',
-            categoria: 'tools',
-            tipo: 'licencia',
-            precio: 4,
-            unidad: 'usuario/mes',
-            descripcion: 'Control de versiones y colaboración',
-            recomendada: true
-          }
-        ],
-        security: [
-          {
-            id: 'ssl-cert',
-            nombre: 'Certificado SSL',
-            categoria: 'security',
-            tipo: 'licencia',
-            precio: 100,
-            unidad: 'año',
-            descripcion: 'Certificado de seguridad para HTTPS',
-            recomendada: true
-          }
-        ],
-        design: [
-          {
-            id: 'figma',
-            nombre: 'Figma Professional',
-            categoria: 'design',
-            tipo: 'licencia',
-            precio: 12,
-            unidad: 'usuario/mes',
-            descripcion: 'Herramienta de diseño UI/UX',
-            recomendada: true
-          }
-        ],
-        roles: [
-          {
-            id: 'fullstack',
-            nombre: 'Desarrollador Full Stack Senior',
-            horas: 160,
-            tarifaHora: 45,
-            mesesTrabajo: 4
-          },
-          {
-            id: 'frontend',
-            nombre: 'Desarrollador Frontend',
-            horas: 120,
-            tarifaHora: 35,
-            mesesTrabajo: 3
-          },
-          {
-            id: 'designer',
-            nombre: 'UI/UX Designer',
-            horas: 80,
-            tarifaHora: 40,
-            mesesTrabajo: 2
-          }
-        ],
-        extras: {
-          gestion: 15,
-          testing: 20,
-          deployment: 10,
-          maintenance: 12,
-          contingency: 10
-        }
-      };
+      setLoading(true);
       
-      setConfiguracion(configEjemplo);
-      calcularPresupuesto(configEjemplo);
-      setLoading(false);
+      // Obtener requerimientos del proyecto para conocer el tipo
+      const requerimientos = obtenerRequerimientosProyecto();
+      
+      // Cargar tecnologías disponibles desde la API, filtradas por tipo de proyecto
+      const response = await fetch(`/api/tecnologias?tipoProyecto=${requerimientos.tipoProyecto || 'web-app'}`);
+      if (response.ok) {
+        const resultado = await response.json();
+        const tecnologiasDisponibles = resultado.data || [];
+        
+        // Filtrar tecnologías según el tipo de proyecto usando la función local
+        const tecnologiasFiltradas = getTecnologiasPorTipoProyecto(requerimientos.tipoProyecto || 'web-app');
+        
+        // Cargar configuración existente o crear nueva
+        const configExistente = obtenerConfiguracionGuardada();
+        
+        if (configExistente) {
+          setConfiguracion(configExistente);
+        } else {
+          // Crear configuración inicial con tecnologías recomendadas según el tipo de proyecto
+          const configInicial = crearConfiguracionInicial(tecnologiasFiltradas);
+          setConfiguracion(configInicial);
+        }
+        
+        // Establecer tecnologías disponibles para cada categoría
+        setTecnologiasDisponibles(tecnologiasFiltradas);
+      } else {
+        console.error('Error al cargar tecnologías');
+        // Fallback: usar tecnologías locales
+        const tecnologiasFiltradas = getTecnologiasPorTipoProyecto(requerimientos.tipoProyecto || 'web-app');
+        setTecnologiasDisponibles(tecnologiasFiltradas);
+        
+        const configExistente = obtenerConfiguracionGuardada();
+        if (configExistente) {
+          setConfiguracion(configExistente);
+        } else {
+          const configInicial = crearConfiguracionInicial(tecnologiasFiltradas);
+          setConfiguracion(configInicial);
+        }
+      }
     } catch (error) {
       console.error('Error al cargar configuración:', error);
+      // Usar configuración de ejemplo si hay error
+      setConfiguracion(obtenerConfiguracionEjemplo());
+    } finally {
       setLoading(false);
     }
+  };
+
+  const obtenerConfiguracionGuardada = () => {
+    try {
+      const configuracionGuardada = localStorage.getItem(`configuracion_${projectId}`);
+      return configuracionGuardada ? JSON.parse(configuracionGuardada) : null;
+    } catch (error) {
+      console.error('Error al obtener configuración guardada:', error);
+      return null;
+    }
+  };
+
+  const crearConfiguracionInicial = (tecnologiasPorCategoria: any) => {
+    const config: ConfiguracionSimulador = {
+      frontend: [],
+      backend: [],
+      database: [],
+      mobile: [],
+      infrastructure: [],
+      tools: [],
+      security: [],
+      design: [],
+      roles: [],
+      extras: {
+        gestion: 15,
+        testing: 10,
+        deployment: 5,
+        maintenance: 8,
+        contingency: 5
+      }
+    };
+
+    // Agregar tecnologías recomendadas por defecto según el tipo de proyecto
+    Object.keys(tecnologiasPorCategoria).forEach(categoria => {
+      const tecnologiasCategoria = tecnologiasPorCategoria[categoria];
+      if (Array.isArray(tecnologiasCategoria) && tecnologiasCategoria.length > 0) {
+        // Verificar que la categoría existe en la configuración
+        if (config[categoria as keyof ConfiguracionSimulador] && Array.isArray(config[categoria as keyof ConfiguracionSimulador])) {
+          const tecnologiasRecomendadas = tecnologiasCategoria.filter((tech: any) => tech.recomendada).slice(0, 2);
+          (config[categoria as keyof ConfiguracionSimulador] as any[]).push(...tecnologiasRecomendadas);
+        }
+      }
+    });
+
+    return config;
+  };
+
+  const guardarConfiguracion = async () => {
+    try {
+      if (!configuracion) return;
+
+      // Guardar en localStorage
+      localStorage.setItem(`configuracion_${projectId}`, JSON.stringify(configuracion));
+
+      // Obtener requerimientos del proyecto
+      const requerimientos = obtenerRequerimientosProyecto();
+      
+      // Crear estructura de datos para el motor de cálculo
+      const configuracionTecnologica = {
+        frontend: configuracion.frontend.map(t => t.id),
+        backend: configuracion.backend.map(t => t.id),
+        database: configuracion.database.map(t => t.id),
+        mobile: configuracion.mobile.map(t => t.id),
+        infrastructure: configuracion.infrastructure.map(t => t.id),
+        tools: configuracion.tools.map(t => t.id),
+        security: configuracion.security.map(t => t.id),
+        design: configuracion.design.map(t => t.id)
+      };
+
+      // Guardar datos completos para la simulación
+      const datosSimulacion = {
+        requerimientos,
+        configuracion: configuracionTecnologica
+      };
+
+      localStorage.setItem(`simulacion_${projectId}`, JSON.stringify(datosSimulacion));
+
+      // Redirigir a resultados
+      router.push(`/simulador/${projectId}/resultados`);
+    } catch (error) {
+      console.error('Error al guardar configuración:', error);
+    }
+  };
+
+  const obtenerRequerimientosProyecto = () => {
+    // Obtener requerimientos guardados o usar valores por defecto
+    try {
+      const requerimientos = localStorage.getItem(`requerimientos_${projectId}`);
+      if (requerimientos) {
+        return JSON.parse(requerimientos);
+      }
+    } catch (error) {
+      console.error('Error al obtener requerimientos:', error);
+    }
+
+    // Valores por defecto
+    return {
+      nombre: `Proyecto ${projectId}`,
+      descripcion: 'Descripción del proyecto',
+      tipoProyecto: 'web-app',
+      alcance: 'completo',
+      usuarios: '100-1000',
+      complejidad: 'media',
+      plazo: '3-6',
+      presupuestoReferencia: '50000-100000',
+      caracteristicasEspeciales: []
+    };
+  };
+
+  const obtenerConfiguracionEjemplo = (): ConfiguracionSimulador => {
+    // Obtener requerimientos del proyecto
+    const requerimientos = obtenerRequerimientosProyecto();
+    
+    // Obtener tecnologías filtradas según el tipo de proyecto
+    const tecnologiasFiltradas = getTecnologiasPorTipoProyecto(requerimientos.tipoProyecto || 'web-app');
+    
+    // Crear configuración inicial con las tecnologías filtradas
+    return crearConfiguracionInicial(tecnologiasFiltradas);
   };
 
   const calcularPresupuesto = (config: ConfiguracionSimulador) => {
     let total = 0;
     
-    // Sumar costos de tecnologías
+    // Sumar costos de tecnologías (convertir a soles peruanos)
     const todasTecnologias = [
       ...config.frontend,
       ...config.backend,
       ...config.database,
+      ...config.mobile,
       ...config.infrastructure,
       ...config.tools,
       ...config.security,
@@ -223,21 +271,27 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
     ];
     
     todasTecnologias.forEach(tech => {
+      let costoTech = 0;
       if (tech.unidad === 'mes') {
-        total += tech.precio * 12; // Año completo
+        costoTech = tech.precio * 12; // Año completo
       } else if (tech.unidad === 'usuario/mes') {
-        total += tech.precio * 5 * 12; // 5 usuarios por año
+        costoTech = tech.precio * 5 * 12; // 5 usuarios por año
       } else if (tech.unidad === 'año') {
-        total += tech.precio;
+        costoTech = tech.precio;
+      } else if (tech.unidad === 'proyecto') {
+        costoTech = tech.precio;
       }
+      
+      // Convertir a soles peruanos si es necesario
+      total += costoTech;
     });
     
-    // Sumar costos de roles
+    // Sumar costos de roles (ya en soles peruanos)
     config.roles.forEach(rol => {
       total += rol.horas * rol.tarifaHora * rol.mesesTrabajo;
     });
     
-    // Aplicar extras
+    // Aplicar extras como porcentajes
     const subtotal = total;
     total += (subtotal * config.extras.gestion) / 100;
     total += (subtotal * config.extras.testing) / 100;
@@ -245,26 +299,41 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
     total += (subtotal * config.extras.maintenance) / 100;
     total += (subtotal * config.extras.contingency) / 100;
     
-    setTotalPresupuesto(total);
+    setTotalPresupuesto(Math.round(total));
   };
 
   const formatearPrecio = (precio: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'PEN',
       minimumFractionDigits: 0
     }).format(precio);
   };
 
-  const categorias = [
-    { id: 'frontend', nombre: 'Frontend', icon: FaCode },
-    { id: 'backend', nombre: 'Backend', icon: FaCode },
-    { id: 'database', nombre: 'Base de Datos', icon: FaDatabase },
-    { id: 'infrastructure', nombre: 'Infraestructura', icon: FaCloud },
-    { id: 'tools', nombre: 'Herramientas', icon: FaTools },
-    { id: 'security', nombre: 'Seguridad', icon: FaLock },
-    { id: 'design', nombre: 'Diseño', icon: FaPalette }
-  ];
+  const obtenerCategorias = () => {
+    const requerimientos = obtenerRequerimientosProyecto();
+    const tipoProyecto = requerimientos.tipoProyecto || 'web-app';
+    
+    const categoriasBase = [
+      { id: 'frontend', nombre: 'Frontend', icon: FaCode },
+      { id: 'backend', nombre: 'Backend', icon: FaCode },
+      { id: 'database', nombre: 'Base de Datos', icon: FaDatabase },
+      { id: 'infrastructure', nombre: 'Infraestructura', icon: FaCloud },
+      { id: 'tools', nombre: 'Herramientas', icon: FaTools },
+      { id: 'security', nombre: 'Seguridad', icon: FaLock },
+      { id: 'design', nombre: 'Diseño', icon: FaPalette },
+      { id: 'roles', nombre: 'Equipo de Desarrollo', icon: FaUsers }
+    ];
+    
+    // Agregar categoría mobile para proyectos móviles
+    if (tipoProyecto === 'mobile-app' || tipoProyecto === 'game') {
+      categoriasBase.splice(2, 0, { id: 'mobile', nombre: 'Desarrollo Móvil', icon: FaMobileAlt });
+    }
+    
+    return categoriasBase;
+  };
+
+  const categorias = obtenerCategorias();
 
   if (status === "loading" || loading) {
     return (
@@ -363,76 +432,74 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
               </div>
 
               <div className="space-y-4">
-                {configuracion[categoriaActiva as keyof ConfiguracionSimulador] && 
-                 Array.isArray(configuracion[categoriaActiva as keyof ConfiguracionSimulador]) && 
-                 (configuracion[categoriaActiva as keyof ConfiguracionSimulador] as Tecnologia[]).map((tech) => (
-                  <div key={tech.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${tech.recomendada ? 'bg-green-500' : 'bg-gray-300'}`} />
-                        <h3 className="font-medium text-gray-900">{tech.nombre}</h3>
-                        {tech.recomendada && (
-                          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                            Recomendada
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">
-                          {tech.precio === 0 ? 'Gratis' : `${formatearPrecio(tech.precio)}/${tech.unidad}`}
-                        </p>
-                        <p className="text-sm text-gray-600 capitalize">{tech.tipo}</p>
+                {categoriaActiva === 'roles' ? (
+                  // Mostrar equipo de desarrollo
+                  configuracion.roles.map((rol) => (
+                    <div key={rol.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-medium text-gray-900">{rol.nombre}</h3>
+                          <p className="text-sm text-gray-600">
+                            {rol.horas}h/mes × {rol.mesesTrabajo} meses = {rol.horas * rol.mesesTrabajo} horas totales
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900">
+                            {formatearPrecio(rol.tarifaHora * rol.horas * rol.mesesTrabajo)}
+                          </p>
+                          <p className="text-sm text-gray-600">{formatearPrecio(rol.tarifaHora)}/hora</p>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">{tech.descripcion}</p>
-                    {tech.alternativas && (
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-sm text-gray-500">Alternativas:</span>
-                        {tech.alternativas.map((alt) => (
-                          <span
-                            key={alt}
-                            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
-                          >
-                            {alt}
-                          </span>
-                        ))}
+                  ))
+                ) : (
+                  // Mostrar tecnologías
+                  configuracion[categoriaActiva as keyof ConfiguracionSimulador] && 
+                  Array.isArray(configuracion[categoriaActiva as keyof ConfiguracionSimulador]) && 
+                  (configuracion[categoriaActiva as keyof ConfiguracionSimulador] as Tecnologia[]).map((tech) => (
+                    <div key={tech.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${tech.recomendada ? 'bg-green-500' : 'bg-gray-300'}`} />
+                          <h3 className="font-medium text-gray-900">{tech.nombre}</h3>
+                          {tech.recomendada && (
+                            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                              Recomendada
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900">
+                            {tech.precio === 0 ? 'Gratis' : `${formatearPrecio(tech.precio)}/${tech.unidad}`}
+                          </p>
+                          <p className="text-sm text-gray-600 capitalize">{tech.tipo}</p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <p className="text-sm text-gray-600 mb-3">{tech.descripcion}</p>
+                      {tech.alternativas && (
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-sm text-gray-500">Alternativas:</span>
+                          {tech.alternativas.map((alt) => (
+                            <span
+                              key={alt}
+                              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
+                            >
+                              {alt}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Sección de roles */}
+        {/* Sección de costos adicionales */}
         <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Equipo de Desarrollo</h2>
-          <div className="space-y-4">
-            {configuracion.roles.map((rol) => (
-              <div key={rol.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">{rol.nombre}</h3>
-                    <p className="text-sm text-gray-600">
-                      {rol.horas}h/mes × {rol.mesesTrabajo} meses = {rol.horas * rol.mesesTrabajo} horas totales
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">
-                      {formatearPrecio(rol.tarifaHora * rol.horas * rol.mesesTrabajo)}
-                    </p>
-                    <p className="text-sm text-gray-600">{formatearPrecio(rol.tarifaHora)}/hora</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Sección de extras */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Costos Adicionales</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Costos Adicionales (Porcentajes)</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(configuracion.extras).map(([key, value]) => (
               <div key={key} className="border border-gray-200 rounded-lg p-4">
@@ -462,12 +529,15 @@ export default function ConfigurarSimuladorPage({ params }: { params: Promise<{ 
           </button>
           
           <div className="flex gap-4">
-            <button className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+            <button 
+              onClick={guardarConfiguracion}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
+            >
               <FaSave className="w-4 h-4" />
               Guardar Configuración
             </button>
             <button
-              onClick={() => router.push(`/simulador/${projectId}/resultados`)}
+              onClick={guardarConfiguracion}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
             >
               <FaChartBar className="w-4 h-4" />

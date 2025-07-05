@@ -41,7 +41,7 @@ export default function SimuladorPage() {
         nombre: 'E-commerce Mediano',
         descripcion: 'Plataforma de comercio electrónico con 10,000 productos',
         tipoProyecto: 'Web Application',
-        presupuestoEstimado: 45000,
+        presupuestoEstimado: 166500, // 45000 EUR * 3.7 PEN/EUR aproximadamente
         fechaCreacion: '2025-01-15',
         estado: 'completado',
         tecnologias: ['React', 'Node.js', 'PostgreSQL', 'AWS']
@@ -51,7 +51,7 @@ export default function SimuladorPage() {
         nombre: 'App Móvil Delivery',
         descripcion: 'Aplicación móvil para delivery de comida',
         tipoProyecto: 'Mobile App',
-        presupuestoEstimado: 32000,
+        presupuestoEstimado: 118400, // 32000 EUR * 3.7 PEN/EUR aproximadamente
         fechaCreacion: '2025-01-10',
         estado: 'borrador',
         tecnologias: ['React Native', 'Firebase', 'Stripe']
@@ -68,9 +68,9 @@ export default function SimuladorPage() {
   });
 
   const formatearPrecio = (precio: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'PEN',
       minimumFractionDigits: 0
     }).format(precio);
   };
@@ -210,13 +210,13 @@ export default function SimuladorPage() {
                 </span>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => router.push(`/simulador/${proyecto.id}`)}
+                    onClick={() => router.push(`/simulador/${proyecto.id}/resultados`)}
                     className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                   >
                     Ver detalles
                   </button>
                   <button
-                    onClick={() => router.push(`/simulador/${proyecto.id}/editar`)}
+                    onClick={() => router.push(`/simulador/${proyecto.id}/configurar`)}
                     className="text-gray-600 hover:text-gray-800 text-sm font-medium"
                   >
                     Editar

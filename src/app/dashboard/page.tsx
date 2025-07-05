@@ -50,9 +50,9 @@ export default function DashboardPage() {
   };
 
   const formatearPrecio = (precio: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'PEN',
       minimumFractionDigits: 0
     }).format(precio);
   };

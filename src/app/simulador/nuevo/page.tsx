@@ -97,12 +97,62 @@ export default function NuevaSimulacionPage() {
 
   const crearSimulacion = async () => {
     try {
-      // Aquí iría la lógica para crear la simulación
-      console.log('Creando simulación:', formulario);
-      // Redirigir al simulador con el ID del proyecto
-      router.push('/simulador/1/configurar');
+      // Generar ID único para la simulación
+      const simulacionId = `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Validar datos del formulario
+      if (!formulario.nombre || !formulario.tipoProyecto || !formulario.alcance) {
+        alert('Por favor complete todos los campos obligatorios');
+        return;
+      }
+
+      // Preparar datos de requerimientos
+      const requerimientos = {
+        nombre: formulario.nombre,
+        descripcion: formulario.descripcion,
+        tipoProyecto: formulario.tipoProyecto,
+        alcance: formulario.alcance,
+        usuarios: formulario.usuarios,
+        complejidad: formulario.complejidad,
+        plazo: formulario.plazo,
+        presupuestoReferencia: formulario.presupuestoReferencia,
+        caracteristicasEspeciales: formulario.caracteristicasEspeciales
+      };
+
+      // Guardar requerimientos en localStorage
+      localStorage.setItem(`requerimientos_${simulacionId}`, JSON.stringify(requerimientos));
+
+      // Crear entrada en lista de simulaciones del usuario
+      const simulacionesUsuario = obtenerSimulacionesUsuario();
+      const nuevaSimulacion = {
+        id: simulacionId,
+        nombre: formulario.nombre,
+        descripcion: formulario.descripcion,
+        tipoProyecto: formulario.tipoProyecto,
+        estado: 'configurando',
+        fechaCreacion: new Date().toISOString(),
+        userId: session?.user?.email || 'demo'
+      };
+      
+      simulacionesUsuario.push(nuevaSimulacion);
+      localStorage.setItem('simulaciones_usuario', JSON.stringify(simulacionesUsuario));
+
+      // Redirigir a la página de configuración
+      router.push(`/simulador/${simulacionId}/configurar`);
+      
     } catch (error) {
       console.error('Error al crear simulación:', error);
+      alert('Error al crear la simulación. Por favor intente nuevamente.');
+    }
+  };
+
+  const obtenerSimulacionesUsuario = () => {
+    try {
+      const simulaciones = localStorage.getItem('simulaciones_usuario');
+      return simulaciones ? JSON.parse(simulaciones) : [];
+    } catch (error) {
+      console.error('Error al obtener simulaciones:', error);
+      return [];
     }
   };
 
